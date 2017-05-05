@@ -8,3 +8,7 @@ config :riak_core,
 
 config :sasl,
   errlog_type: :error
+
+config :lager,
+  colored: true,
+  error_logger_hwm: 500
