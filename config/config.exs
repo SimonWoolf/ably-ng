@@ -12,3 +12,6 @@ config :sasl,
 config :lager,
   colored: true,
   error_logger_hwm: 500
+
+config :logger,
+  level: :debug
