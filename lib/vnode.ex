@@ -67,11 +67,11 @@ defmodule AblyNg.Vnode do
     {:stop, :not_implemented, state}
   end
 
-  def handle_exit(pid, reason, state) do
+  def handle_exit(_pid, _reason, state) do
     {:noreply, state}
   end
 
-  def terminate(reason, _state) do
+  def terminate(_reason, _state) do
     :ok
   end
 

@@ -12,7 +12,7 @@ defmodule AblyNg.Mixfile do
 
   def application do
     [
-      applications: [:riak_core, :logger],
+      applications: [:riak_core, :logger, :cowboy],
       mod: {AblyNg, []}
     ]
   end

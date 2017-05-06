@@ -17,3 +17,5 @@ config :logger,
   level: :debug,
   handle_sasl_reports: true,
   handle_otp_reports: true
+
+import_config "#{Mix.env}.exs"
