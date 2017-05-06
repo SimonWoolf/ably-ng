@@ -11,7 +11,10 @@ defmodule AblyNg.Mixfile do
   end
 
   def application do
-    [applications: [:riak_core, :logger]]
+    [
+      applications: [:riak_core, :logger],
+      mod: {AblyNg, []}
+    ]
   end
 
   defp deps do
