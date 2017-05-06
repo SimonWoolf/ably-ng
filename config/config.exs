@@ -14,4 +14,6 @@ config :lager,
   error_logger_hwm: 500
 
 config :logger,
-  level: :debug
+  level: :debug,
+  handle_sasl_reports: true,
+  handle_otp_reports: true
