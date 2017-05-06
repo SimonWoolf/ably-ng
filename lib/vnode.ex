@@ -2,7 +2,7 @@ defmodule AblyNg.Vnode do
   require Logger
   @behaviour :riak_core_vnode
 
-  # VNODE BEHAVIOUR CALLBACKS
+  # Vnode behaviour callbacks
   ###########################
 
   def start_vnode(partition) do
@@ -10,11 +10,26 @@ defmodule AblyNg.Vnode do
   end
 
   def init([partition]) do
-    {:ok, %{partition: partition}}
+    {:ok, %{partition: partition, masters: %{channel: %{}}}}
   end
 
   def handle_command(:ping, _sender, state = %{partition: partition}) do
     {:reply, {:pong, partition}, state}
+  end
+
+  def handle_command({:master, {type, key}}, _sender, state) do
+    try do
+      {master, state} =  case state.masters[type] do
+        %{^key => master} ->
+          {master, state}
+        _ ->
+          master = spawn_master(type, key)
+          {master, put_in(state.masters[type][key], master)}
+      end
+      {:reply, {:ok, master}, state}
+    rescue
+      e -> {:reply, {:error, e}, state}
+    end
   end
 
   def handoff_starting(_dest, state) do
@@ -52,14 +67,19 @@ defmodule AblyNg.Vnode do
     {:stop, :not_implemented, state}
   end
 
-  def handle_exit(_pid, _reason, state) do
+  def handle_exit(pid, reason, state) do
     {:noreply, state}
   end
 
-  def terminate(_reason, _state) do
+  def terminate(reason, _state) do
     :ok
   end
 
-  # OTHER
-  #################
+  # Helpers
+  #########
+
+  defp spawn_master(:channel, key) do
+      {:ok, pid} = AblyNg.ChannelMaster.start_link(key)
+      pid
+  end
 end
