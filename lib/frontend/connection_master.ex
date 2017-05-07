@@ -1,5 +1,7 @@
 defmodule AblyNg.Frontend.ConnectionMaster do
   use GenServer
+  use AblyNg.Types.ProtocolMessage
+  alias AblyNg.{ChannelClientSupervisor}
   require Logger
 
   def start_link(opts) do
@@ -10,6 +12,10 @@ defmodule AblyNg.Frontend.ConnectionMaster do
     with :ok <- GenServer.call(connection, {:add_transport, self()}) do
       Process.monitor(connection)
     end
+  end
+
+  def on_protocol_message(connection, protocol_message) do
+    GenServer.cast(connection, {:on_protocol_message, protocol_message})
   end
 
   # GenServer behaviour callbacks
@@ -26,5 +32,17 @@ defmodule AblyNg.Frontend.ConnectionMaster do
     Process.monitor(transport_pid)
     transports = transports |> MapSet.put(transport_pid)
     {:reply, :ok, %{state | transports: transports}}
+  end
+
+  def handle_cast({:on_protocol_message, %{channel: channel_name, action: @action_attach}}, state) do
+    channel_key = "#{state.app_id}:#{channel_name}"
+    # Don't need to actually get the channel client; it will listen for the added subscriber
+    ChannelClientSupervisor.add_subscriber(channel_key)
+    {:noreply, state}
+  end
+
+  def handle_cast({:on_protocol_message, message}, state) do
+    Logger.warn "ConnectionMaster: can't yet handle #{inspect message}"
+    {:noreply, state}
   end
 end
