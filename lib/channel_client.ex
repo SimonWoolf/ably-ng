@@ -7,17 +7,6 @@ defmodule AblyNg.ChannelClient do
     GenServer.start_link(__MODULE__, key)
   end
 
-  def add_subscriber(channel_key) do
-    # Per-node attachment registry -- creating a registry (ie an ets table) per
-    # channelclient would be too heavyweight. Could always just store a list of
-    # pids in the channelclient state though?
-    # TODO should connections link/monitor with the channelclient? need a
-    # mechanism for channelclient to dispose of itself when no longer needed --
-    # should it add itself as a listener to the registry (and monitor the
-    # connections)?
-    {:ok, _} = Registry.register(AttachmentRegistry, channel_key, [])
-  end
-
   def on_message(channel_client, message) do
     GenServer.cast(channel_client, {:incoming, message})
   end

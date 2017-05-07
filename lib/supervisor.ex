@@ -10,9 +10,9 @@ defmodule AblyNg.Supervisor do
     children = [
       worker(:riak_core_vnode_master, [AblyNg.Vnode], id: AblyNg.Vnode_master_worker),
       worker(AblyNg.Frontend.WsServer, []),
-      supervisor(Registry, [:unique, AblyNy.ChannelClientRegistry], id: :channel_client_registry),
-      #supervisor(Registry, [:duplicate, AblyNy.AttachmentRegistry, partitions: System.schedulers_online()], id: :attachment_registry)
+      supervisor(Registry, [:duplicate, AblyNg.AttachmentRegistry, [partitions: System.schedulers_online()]], id: :attachment_registry),
       supervisor(AblyNg.Frontend.ConnectionSupervisor, []),
+      supervisor(AblyNg.ChannelClientSupervisor, []),
     ]
     supervise(children, strategy: :one_for_one, max_restarts: 5, max_seconds: 10)
   end
