@@ -10,7 +10,7 @@ defmodule AblyNg.ChannelClientSupervisor do
   end
 
   def add_subscriber(channel_key) do
-    with :ok <- ensure_client_exists(channel_key) do
+    with {:ok, _} <- get_client(channel_key) do
       # Per-node attachment registry -- creating a registry (ie an ets table) per
       # channelclient would be too heavyweight. Could always just store a list of
       # pids in the channelclient state though?
@@ -18,12 +18,12 @@ defmodule AblyNg.ChannelClientSupervisor do
       # should also add itself as a listener to the registry - or the
       # supervisor do that?), so channelclient can dispose of itself when no
       # longer needed
-      {:ok, _} = Registry.register(AttachmentRegistry, channel_key, [])
+      {:ok, _} = Registry.register(AblyNg.AttachmentRegistry, channel_key, [])
       :ok
     end
   end
 
-  def ensure_client_exists(channel_key) do
+  def get_client(channel_key) do
     # Effectively we use the supervisor's child list (and its behaviour of only
     # allowing one child with each id) as a registry. This is very convenient
     # and guarantees no race conditions, but is linear with number of channels

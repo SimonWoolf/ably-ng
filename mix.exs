@@ -25,7 +25,10 @@ defmodule AblyNg.Mixfile do
       # nb see https://github.com/project-fifo/riak_core/issues/20
       {:cuttlefish, github: "basho/cuttlefish", tag: "2.0.11", manager: :rebar3, override: true},
       {:lager, github: "basho/lager", tag: "3.2.4", manager: :rebar3, override: true},
-      {:goldrush, github: "basho/goldrush", tag: "0.1.9", manager: :rebar3, override: true}
+      {:goldrush, github: "basho/goldrush", tag: "0.1.9", manager: :rebar3, override: true},
+
+      # Test deps
+      {:socket, "~> 0.3.11", only: :test},
     ]
   end
 end

@@ -11,7 +11,7 @@ defmodule AblyNg.Frontend.WsServer do
         max_connections: 10000
       ],
       %{ # cowboy options
-        env: %{dispatch: routes},
+        env: %{dispatch: routes()},
         timeout: 17500
       }
     )

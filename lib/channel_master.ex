@@ -30,7 +30,7 @@ defmodule AblyNg.ChannelMaster do
   # TODO: remove clients automatically via the monitor if they die
   def handle_call({:add_client, client_pid, node_name}, _from, state = %{clients: clients}) do
     if Map.has_key?(clients, node_name) do
-      Logger.warn("Channelmaster #{state.key} (#{inspect self}) -- client #{inspect client_pid} added for node #{node_name}, but there was already a client for that node: #{inspect clients[node_name]}. Replacing it")
+      Logger.warn("Channelmaster #{state.key} (#{inspect self()}) -- client #{inspect client_pid} added for node #{node_name}, but there was already a client for that node: #{inspect clients[node_name]}. Replacing it")
     end
     Process.monitor(client_pid)
     state = put_in(state.clients[node_name], client_pid)
@@ -38,8 +38,9 @@ defmodule AblyNg.ChannelMaster do
   end
 
   def handle_cast({:incoming, message}, state) do
-    for client <- state.clients do
+    for {_, client} <- state.clients do
       ChannelClient.on_message(client, message)
     end
+    {:noreply, state}
   end
 end

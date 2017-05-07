@@ -3,6 +3,10 @@ defmodule AblyNg.Frontend.WsHandler do
   use AblyNg.Types.ProtocolMessage
   alias AblyNg.Frontend.{ConnectionSupervisor, ConnectionMaster}
 
+  def send_message(handle, protocol_message) do
+    send(handle, {:send, protocol_message})
+  end
+
   def init(req, _opts) do
     Logger.debug "cowboy websocket handler init #{inspect self()}: new req #{inspect req}"
     {:cowboy_websocket, req, %{app_id: "fake_appid"}}
@@ -25,9 +29,14 @@ defmodule AblyNg.Frontend.WsHandler do
     {:ok, state}
   end
 
+  def websocket_info({:send, protocol_message}, state) do
+    encoded = Poison.encode!(protocol_message)
+    {:reply, {:text, encoded}, state}
+  end
+
   def websocket_info(message, state) do
-    Logger.debug "Cowboy ws handler #{inspect self()}: Received message #{inspect message}"
-    {:reply, {:text, "HIII"}, state}
+    Logger.warn "Cowboy ws handler #{inspect self()}: Received unrecognised message #{inspect message}"
+    {:ok, state}
   end
 
   defp find_connection(state) do
